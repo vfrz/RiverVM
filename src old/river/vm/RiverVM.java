@@ -23,15 +23,18 @@ public class RiverVM {
     int[] stack; // Stack memory
     Context ctx;
 
-    public RiverVM(int[] code, int numberOfGlobals) {
+    FuncMetaData[] metaData;
+
+    public RiverVM(int[] code, int numberOfGlobals, FuncMetaData[] metaData) {
         this.code = code;
         globals = new int[numberOfGlobals];
         stack = new int[DEFAULT_STACK_SIZE];
+        this.metaData = metaData;
     }
 
     public void execute(int startip) {
         ip = startip;
-        ctx = new Context(null, startip, new FuncMetaData(0, 0, startip));
+        ctx = new Context(null, 0, metaData[0]);
         cpu();
     }
 
@@ -124,16 +127,15 @@ public class RiverVM {
                     --sp;
                     break;
                 case CALL:
-                    int functionAddress = code[ip++];    // Function address
-                    int numberOfArgs = code[ip++]; // Number of arguments
-                    FuncMetaData f = new FuncMetaData(numberOfArgs, 0, functionAddress);
-                    ctx = new Context(ctx, ip, f);
+                    int functionIndex = code[ip++];    // Function index
+                    int numberOfArgs = metaData[functionIndex].getNumberOfArgs(); // Number of arguments
+                    ctx = new Context(ctx, ip, metaData[functionIndex]);
                     // Copy arguments into new context
                     for (int i = 0; i < numberOfArgs; i++) {
                         ctx.getLocals()[i] = stack[sp - i];
                     }
                     sp -= numberOfArgs;
-                    ip = f.getAddress(); // Jump to function
+                    ip = metaData[functionIndex].getAddress(); // Jump to function
                     break;
                 case RET:
                     ip = ctx.getReturnip();

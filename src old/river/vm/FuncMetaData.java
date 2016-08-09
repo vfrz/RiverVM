@@ -9,14 +9,20 @@ package river.vm;
  */
 public class FuncMetaData {
 
+    private String name;
     private int numberOfArgs;
     private int numberOfLocals;
     private int address;
 
-    public FuncMetaData(int numberOfArgs, int numberOfLocals, int address) {
+    public FuncMetaData(String name, int numberOfArgs, int numberOfLocals, int address) {
+        this.name = name;
         this.numberOfArgs = numberOfArgs;
         this.numberOfLocals = numberOfLocals;
         this.address = address;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public int getNumberOfArgs() {

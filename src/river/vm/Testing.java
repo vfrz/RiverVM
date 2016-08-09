@@ -1,5 +1,10 @@
 package river.vm;
 
+import javax.net.ssl.SSLContext;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 import static river.vm.ByteCode.*;
 
 /**
@@ -12,46 +17,73 @@ import static river.vm.ByteCode.*;
 public class Testing {
 
     static int[] test = {
-            IPUSH, 10, // 0
-            CALL, 2, // 2
-            PRINT, // 4
-            HALT, // 5
+            IPUSH, 5,
+            IPUSH, 10,
+            CALL, 9, 2,
+            PRINT,
+            HALT,
 
-            LOAD, 0, // 6
-            LOAD, 1, // 8
-            IADD, // 10
-            RET, // 11
-
-            LOAD, 0, // 12
-            IPUSH, 2, // 14
-            CALL, 1, // 16
-            RET // 18
-    };
-
-    /*
-        Test code :
-
-        void main() {
-            print(add2(10));
-        }
-
-        int add(int a, int b) {
-            return a + b;
-        }
-
-        int add2(int a) {
-            return add(a, 2);
-        }
-     */
-
-    static FuncMetaData[] testMetaData = {
-            new FuncMetaData("main", 0, 0, 0),
-            new FuncMetaData("add", 2, 0, 6),
-            new FuncMetaData("add2", 1, 0, 12)
+            LOAD, 1,
+            LOAD, 0,
+            IMUL,
+            RET
     };
 
     public static void main(String args[]) {
-        RiverVM vm = new RiverVM(test, 0 ,testMetaData);
-        vm.execute(testMetaData[0].getAddress());
+        /*RiverVM vm = new RiverVM(test, 0);
+        vm.execute(0);*/
+
+        String[] text = readAllText(args[0]).split("\\s+");
+        int[] result = new int[text.length];
+
+        for (int y = 0; y < text.length; y++) {
+            if (!isNumeric(text[y])) {
+                for (int i = 0; i < instructions.length; i++) {
+                    if (text[y].toLowerCase().trim().equals(instructions[i].getName())) {
+                        result[y] = i;
+                        continue;
+                    }
+                }
+            } else {
+                result[y] = Integer.parseInt(text[y]);
+            }
+        }
+
+        /*
+        for (int i : result) {
+            System.out.println(i);
+        }*/
+
+        RiverVM vm = new RiverVM(result, args.length > 2 ? Integer.parseInt(args[2]) : 0);
+        vm.execute(args.length > 1 ? Integer.parseInt(args[1]) : 0);
+    }
+
+    private static boolean isNumeric(String str) {
+        try {
+            int d = Integer.parseInt(str);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
+
+    private static String readAllText(String path) {
+        BufferedReader br;
+        String result = "";
+        try {
+            br = new BufferedReader(new FileReader(path));
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+            while (line != null) {
+                sb.append(line);
+                sb.append(System.lineSeparator());
+                line = br.readLine();
+            }
+            result = sb.toString();
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }

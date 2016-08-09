@@ -37,15 +37,13 @@ public class ByteCode {
     public static final byte HALT = 22;
 
     public static Instruction[] instructions = new Instruction[]{
-            new Instruction(""),
+            null,
             new Instruction("iadd"),
             new Instruction("isub"),
             new Instruction("imul"),
             new Instruction("idiv"),
             new Instruction("ilt"),
-            new Instruction("ile"),
             new Instruction("igt"),
-            new Instruction("ige"),
             new Instruction("ieq"),
             new Instruction("jmp", 1),
             new Instruction("jmpt", 1),
